@@ -25,4 +25,7 @@ public class Task {
     public Task() {
     }
 
+    public Task(String title, Optional<String> description) {
+        this(new TaskId(), title, description, TaskStatus.Pending);
+    }
 }
