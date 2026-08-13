@@ -17,7 +17,7 @@ public class InMemoryTaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public List<Task> findAlll() {
+    public List<Task> findAll() {
         return new ArrayList<>(storage.values());
     }
 

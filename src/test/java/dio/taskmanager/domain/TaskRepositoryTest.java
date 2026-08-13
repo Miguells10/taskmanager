@@ -36,7 +36,7 @@ public abstract class TaskRepositoryTest {
         repository.save(firstTask);
         repository.save(secondTask);
 
-        var tasks = repository.findAlll();
+        var tasks = repository.findAll();
 
         assertEquals(2, tasks.size());
         assertTrue(tasks.containsAll(java.util.List.of(firstTask, secondTask)));
