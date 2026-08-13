@@ -1,6 +1,7 @@
 package dio.taskmanager.infra.web;
 
 import dio.taskmanager.application.CreateTaskUseCase;
+import dio.taskmanager.application.GetTaskByIdUseCase;
 import dio.taskmanager.application.ListTasksUseCase;
 import dio.taskmanager.application.output.TaskOutput;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -30,13 +32,18 @@ class TaskControllerTest {
     private CreateTaskUseCase createTaskUseCase;
 
     @Mock
+    private GetTaskByIdUseCase getTaskByIdUseCase;
+
+    @Mock
     private ListTasksUseCase listTasksUseCase;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new TaskController(createTaskUseCase, listTasksUseCase)).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(
+                new TaskController(createTaskUseCase, getTaskByIdUseCase, listTasksUseCase)
+        ).build();
     }
 
     @Test
@@ -71,5 +78,31 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$[1].id").value("second-id"));
 
         verify(listTasksUseCase).execute();
+    }
+
+    @Test
+    void shouldReturnTaskById() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(getTaskByIdUseCase.execute(id)).thenReturn(Optional.of(
+                new TaskOutput(id.toString(), "Study Java", Optional.empty(), "Pending")
+        ));
+
+        mockMvc.perform(get("/tasks/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.title").value("Study Java"));
+
+        verify(getTaskByIdUseCase).execute(id);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenTaskDoesNotExist() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(getTaskByIdUseCase.execute(id)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/tasks/{id}", id))
+                .andExpect(status().isNotFound());
+
+        verify(getTaskByIdUseCase).execute(id);
     }
 }
