@@ -15,7 +15,7 @@ public class Task {
     private TaskStatus status;
 
     public Task(TaskId id, String title, Optional<String> description, TaskStatus status) {
-        Assert.notNull(title, "Title must not be nulll");
+        Assert.hasText(title, "Title must not be blank");
         this.id = id;
         this.title = title;
         this.description = description;

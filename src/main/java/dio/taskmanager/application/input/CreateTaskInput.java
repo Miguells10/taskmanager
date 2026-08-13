@@ -1,6 +1,8 @@
 package dio.taskmanager.application.input;
 
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.Optional;
 
-public record CreateTaskInput(String title, Optional<String> description) {
+public record CreateTaskInput(@NotBlank String title, Optional<String> description) {
 }

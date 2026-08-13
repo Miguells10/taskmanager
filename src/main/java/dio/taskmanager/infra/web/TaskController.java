@@ -5,6 +5,7 @@ import dio.taskmanager.application.GetTaskByIdUseCase;
 import dio.taskmanager.application.ListTasksUseCase;
 import dio.taskmanager.application.input.CreateTaskInput;
 import dio.taskmanager.application.output.TaskOutput;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +37,7 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<TaskOutput> create(@RequestBody CreateTaskInput input) {
+    public ResponseEntity<TaskOutput> create(@Valid @RequestBody CreateTaskInput input) {
         return ResponseEntity.status(HttpStatus.CREATED).body(createTaskUseCase.execute(input));
     }
 
