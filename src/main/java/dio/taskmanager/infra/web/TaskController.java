@@ -1,6 +1,7 @@
 package dio.taskmanager.infra.web;
 
 import dio.taskmanager.application.CreateTaskUseCase;
+import dio.taskmanager.application.DeleteTaskUseCase;
 import dio.taskmanager.application.GetTaskByIdUseCase;
 import dio.taskmanager.application.ListTasksUseCase;
 import dio.taskmanager.application.input.CreateTaskInput;
@@ -9,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,15 +25,18 @@ import java.util.UUID;
 public class TaskController {
 
     private final CreateTaskUseCase createTaskUseCase;
+    private final DeleteTaskUseCase deleteTaskUseCase;
     private final GetTaskByIdUseCase getTaskByIdUseCase;
     private final ListTasksUseCase listTasksUseCase;
 
     public TaskController(
             CreateTaskUseCase createTaskUseCase,
+            DeleteTaskUseCase deleteTaskUseCase,
             GetTaskByIdUseCase getTaskByIdUseCase,
             ListTasksUseCase listTasksUseCase
     ) {
         this.createTaskUseCase = createTaskUseCase;
+        this.deleteTaskUseCase = deleteTaskUseCase;
         this.getTaskByIdUseCase = getTaskByIdUseCase;
         this.listTasksUseCase = listTasksUseCase;
     }
@@ -49,5 +54,12 @@ public class TaskController {
     @GetMapping("/{id}")
     public ResponseEntity<TaskOutput> getById(@PathVariable UUID id) {
         return ResponseEntity.of(getTaskByIdUseCase.execute(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        return deleteTaskUseCase.execute(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 }

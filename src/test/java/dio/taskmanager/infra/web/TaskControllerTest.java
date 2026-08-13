@@ -1,6 +1,7 @@
 package dio.taskmanager.infra.web;
 
 import dio.taskmanager.application.CreateTaskUseCase;
+import dio.taskmanager.application.DeleteTaskUseCase;
 import dio.taskmanager.application.GetTaskByIdUseCase;
 import dio.taskmanager.application.ListTasksUseCase;
 import dio.taskmanager.application.output.TaskOutput;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,6 +33,9 @@ class TaskControllerTest {
 
     @Mock
     private CreateTaskUseCase createTaskUseCase;
+
+    @Mock
+    private DeleteTaskUseCase deleteTaskUseCase;
 
     @Mock
     private GetTaskByIdUseCase getTaskByIdUseCase;
@@ -43,7 +48,7 @@ class TaskControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(
-                new TaskController(createTaskUseCase, getTaskByIdUseCase, listTasksUseCase)
+                new TaskController(createTaskUseCase, deleteTaskUseCase, getTaskByIdUseCase, listTasksUseCase)
         ).build();
     }
 
@@ -117,5 +122,27 @@ class TaskControllerTest {
                 .andExpect(status().isNotFound());
 
         verify(getTaskByIdUseCase).execute(id);
+    }
+
+    @Test
+    void shouldDeleteTask() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(deleteTaskUseCase.execute(id)).thenReturn(true);
+
+        mockMvc.perform(delete("/tasks/{id}", id))
+                .andExpect(status().isNoContent());
+
+        verify(deleteTaskUseCase).execute(id);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenDeletingMissingTask() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(deleteTaskUseCase.execute(id)).thenReturn(false);
+
+        mockMvc.perform(delete("/tasks/{id}", id))
+                .andExpect(status().isNotFound());
+
+        verify(deleteTaskUseCase).execute(id);
     }
 }
